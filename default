@@ -1,0 +1,18 @@
+#!/bin/bash
+
+#selinux disabled
+setenforce 0
+sed -i 's/SELINUX=enforcing/SELINUX=disabled/g' /etc/sysconfig/selinux 
+
+#firewalld disabled
+systemctl stop firewalld  
+
+#ssh port change
+sed -i 's/#Port 22/Port 9022/g' /etc/ssh/sshd_config 
+systemctl restart sshd
+
+#iptables setting
+yum install iptables-services -y 
+systemctl enable iptables 
+iptables -A INPUT -p tcp --dport 9022 -j ACCEPT 
+service iptables save 
